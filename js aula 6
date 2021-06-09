@@ -172,70 +172,74 @@ function validaAltura(altura){
 }
 
 //form.js
-var titulo = document.querySelector(".titulo");
-titulo.textContent = "Aparecida Nutrições";
+var botaoAdicionar = document.querySelector("#adicionar-paciente");
+botaoAdicionar.addEventListener("click",function(event){
+	event.preventDefault();
 
-var pacientes = document.querySelectorAll(".paciente");
+	var form = document.querySelector("#form-adiciona");
 
-for (var i = 0; i < pacientes.length ; i++){
+	var paciente = obtemPacienteDoFormulario(form);
 
-	var paciente = pacientes[i];
+	var pacienteTr = montaTr(paciente);
 
-	var tdPeso = paciente.querySelector(".info-peso");
-	var peso = tdPeso.textContent;
-
-	var tdAltura = paciente.querySelector(".info-altura");
-	var altura = tdAltura.textContent;
-
-	var tdImc = paciente.querySelector(".info-imc");
-
-	var pesoEhValido = validaPeso(peso);
-	var alturaEhValida = validaAltura(altura);
-
-	if(!pesoEhValido){
-		console.log("Peso inválido!")
-		pesoEhValida = false;
-		tdImc.textContent = "Peso inválido!";
-		paciente.classList.add("paciente-invalido");
+	var erro = validaPaciente(paciente);
+	
+	if (erro.length) {
+		var mensagemErro = document.querySelector("#mensagem-erro");
+		mensagemErro.textContent = erro;
+		return;
 	}
 
-	if(!alturaEhValida){
-		console.log("Altura Inválida!")
-		alturaEhValida = false;
-		tdImc.textContent = "Altura Inválida!";
-		paciente.classList.add("paciente-invalido");
-	}
+	var tabela = document.querySelector("#tabela-pacientes");
+	
+	tabela.appendChild(pacienteTr);
 
-	if (!pesoEhValido && alturaEhValida){
-		var imc = calculaImc(peso,altura);
-	tdImc.textContent = imc;
+	form.reset();
+	
+});
+	
+	
 
-	}
+function obtemPacienteDoFormulario(form) {
+
+    var paciente = {
+        nome : form.nome.value,
+        peso : form.peso.value,
+        altura : form.altura.value,
+        gordura : form.gordura.value,
+        imc : calculaImc(form.peso.value, form.altura.value)
+    }
+
+    return paciente;
 }
 
-function calculaImc(peso,altura){
+function montaTr(paciente){
 
-	var imc = 0;
+	var pacienteTr = document.createElement("tr");
+	pacienteTr.classList.add("paciente");
 
-	imc = peso / (altura * altura);
+	pacienteTr.appendChild(montaTd(paciente.nome, "info-nome"));
+	pacienteTr.appendChild(montaTd(paciente.peso, "info-peso"));
+	pacienteTr.appendChild(montaTd(paciente.altura, "info-altura"));
+	pacienteTr.appendChild(montaTd(paciente.gordura, "info-gordura"))
+	pacienteTr.appendChild(montaTd(paciente.imc, "info-imc"));
 
-	return imc.toFixed(2);
-
+	return pacienteTr;
 }
 
-function validaPeso(peso){
-	if(peso >= 0 && peso < 1000) {
+function montaTd(dado,classe){
+	var td = document.createElement("td");
+	td.textContent = dado;
+	td.classList.add(classe);
+
+	return td;
+}
+
+function validaPaciente(paciente){
+
+	if (validaPaciente(paciente.peso)) {
 		return true;
 	}else{
-		return false;
+		return "O peso é inválido";
 	}
 }
-
-function validaAltura(altura){
-	if(altura >= 0 && altura <=3.0){
-		return true;
-	}else{
-		return false;
-	}
-}
-
